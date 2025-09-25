@@ -1,0 +1,42 @@
+Word Counter Solution
+
+
+Write a library called "WordCounter".  It should have the following two distinct methods:
+1.	method that allows you to add one or more words
+2.	method that returns the count of how many times a given word was added to the word counter
+
+It should also have the following requirements:
+
+•	should NOT allow addition of words with non-alphabetic characters
+•	should treat same words written in different languages as the same word, for example if
+adding "flower", "flor" (Spanish word for flower) and "blume" (German word for flower) the counting method should return 3.  You may assume that translation of words will be done via external class provided to you called "Translator" that will have method "translate" accepting word as an argument and it will return English name for it.
+
+Please consider the following:
+•	adopt a TDD manner if possible. Yes.
+•	consider the software design principles you are using.  What are they, if any?
+Answer : The solution follows the Single Responsibility Principle by separating word validation, translation, and counting into distinct classes, while applying Dependency Inversion by depending on the Translator interface rather than concrete implementations. The Open/Closed Principle is maintained through the pluggable translator system that allows extending functionality without modifying existing code, and Interface Segregation ensures focused, cohesive contracts.
+
+•	are there any design patterns appropriate for all/part of this task?
+Answer :The Builder Pattern provides flexible WordCounter configuration with different translator options, while the Strategy Pattern enables swappable translation algorithms at runtime. The Template Method Pattern standardizes the word processing pipeline (validate → normalize → translate → count), ensuring consistent behavior across all operations.
+
+•	think of the most optimal algorithm for storing and counting words.  Be prepared to describe your approach.
+Answer: The implementation uses ConcurrentHashMap<String, AtomicInteger> as the core data structure, providing O(1) average-case performance for both insertion and retrieval operations. This approach combines hash table efficiency with thread-safe atomic operations, where each translated word maps to an AtomicInteger counter that can be incremented safely without explicit locking.
+•	do not use persistence or in-memory DB, but consider the memory utilization of your solution.
+Answer: Memory optimization is achieved through string interning in the translation cache and efficient storage of only unique translated words as keys. The solution avoids memory overhead by using primitive-wrapper AtomicInteger instead of heavyweight synchronization objects, and the translation cache prevents redundant processing while maintaining a reasonable memory footprint proportional to unique vocabulary size.
+
+•	don’t make any assumptions about the execution context for the “WordCounter” library.
+Answer: The library is designed to be execution-context agnostic, working equally well in standalone applications, web servers, microservices, or embedded systems without requiring specific runtime environments. The implementation avoids dependencies on application servers, servlet containers, or specific frameworks, making it portable across different deployment scenarios.
+
+•	design with concurrency as a requirement
+answer: Thread safety is achieved through lock-free programming using ConcurrentHashMap for the word storage and AtomicInteger for counters, eliminating contention and deadlock possibilities. The computeIfAbsent method ensures atomic initialization of new word entries, while the overall design supports high-concurrency scenarios with minimal performance degradation under simultaneous access from multiple threads.
+
+As a further enhancement, please create a microservice to expose the “Word Counter” functionality to external clients.  Consider how clients will access the service.  Where would you host the service?   How would you ensure resiliency of the service?
+Answer: The Word Counter microservice is already implemented as a Spring Boot application with RESTful endpoints that external clients can access via HTTP requests using JSON payloads for operations like adding words, retrieving counts, and getting statistics. For hosting, I would deploy it on AWS ECS or Google Cloud Run as containerized services, which provide automatic scaling, load balancing, and managed infrastructure with minimal configuration overhead. To ensure resiliency, the service would implement health checks through Spring Boot Actuator endpoints, use multiple container instances behind a load balancer for high availability, and include circuit breaker patterns with graceful degradation when translation services are unavailable. Additionally, the stateless design of the service allows for easy horizontal scaling and recovery, while Docker containerization ensures consistent deployment across different environments with built-in restart policies for automatic recovery from failures.
+
+Technology stack:
+•	Java 8, JUnit and Mockito to solve the task.
+•	Gradle or maven as dependency management tool.
+•	Use your favorite open source libraries including assertion libraries.
+
+
+
