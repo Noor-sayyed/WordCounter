@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Installing Maven dependencies"
+      - mvn clean install -DskipTests
+  build:
+    commands:
+      - echo "Building Spring Boot App"
+      - mvn package -DskipTests
+  post_build:
+    commands:
+      - echo "Build completed successfully"
+artifacts:
+  files:
+    - target/*.jar
+    - appspec.yml
+    - scripts/**
